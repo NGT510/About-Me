@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nilda Thomas - Healthcare Operations & AI Expert</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="https://files.oaiusercontent.com/file-P73HAvF9IswaHN0YuLnAvDUs" alt="Nilda Thomas Headshot" style="max-width:100%;height:auto;">
+            <h1>Nilda Thomas</h1>
+            <p>Business Operations & Automation Professional in Healthcare</p>
+        </header>
+        <main>
+            <section>
+                <h2>About Me</h2>
+                <p>With over two decades of experience, I am a dedicated professional specializing in business operations, automation, and AI within the healthcare industry. My expertise lies in executing competitive programs and creating effective efficiencies for healthcare initiatives. My dynamic journey through industries such as manufacturing, automotive, and IT has been marked by innovation, leadership, and a commitment to excellence.</p>
+                <p>As a visionary leader and business strategist, I've introduced advanced technology solutions at global corporations, including my tenure at renowned companies like Microsoft and Deloitte. My work has earned me recognition as one of Michigan's Top Talents, and my insights have been featured in several prestigious publications.</p>
+                <p>At the helm of Workforce eTraining Solutions LLC and Business AI Consulting LLC, I empower women-owned businesses to embrace digital transformation and AI through consulting, training, and speaking engagements. My mission is to bridge the gap between technology and business, enabling organizations to thrive in the digital economy.</p>
+            </section>
+            <section>
+                <h2>Services</h2>
+                <ul>
+                    <li>Optimizing Healthcare Operations with AI</li>
+                    <li>Empowering Healthcare Professionals with AI Education</li>
+                    <li>Supporting Healthcare Community Impact Programs</li>
+                    <li>Technical Assistance for Community Impact Programs</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Contact</h2>
+                <p>Email me at <a href="mailto:nilda@nildathomas.com">nilda@nildathomas.com</a> or visit my <a href="https://www.linkedin.com/in/nildathomas">LinkedIn profile</a> for more information.</p>
+            </section>
+        </main>
+        <footer>
+            <p>© Nilda Thomas. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
