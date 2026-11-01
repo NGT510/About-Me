@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Focus Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --bg-glow: #efe6da;
+    --surface: #ffffff;
+    --text: #2b2622;
+    --muted: #8a8079;
+    --track: #e6ddd2;
+    --accent: #c2603c;
+    --accent-2: #e0a066;
+    --btn: #2b2622;
+    --btn-text: #ffffff;
+    --ghost: rgba(43, 38, 34, 0.06);
+    --shadow: 0 20px 60px rgba(80, 50, 30, 0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15120f;
+      --bg-glow: #241c16;
+      --surface: #1d1915;
+      --text: #f2ebe3;
+      --muted: #9a8f86;
+      --track: #2e2721;
+      --accent: #e57a52;
+      --accent-2: #f2b47a;
+      --btn: #f2ebe3;
+      --btn-text: #15120f;
+      --ghost: rgba(242, 235, 227, 0.08);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15120f;
+    --bg-glow: #241c16;
+    --surface: #1d1915;
+    --text: #f2ebe3;
+    --muted: #9a8f86;
+    --track: #2e2721;
+    --accent: #e57a52;
+    --accent-2: #f2b47a;
+    --btn: #f2ebe3;
+    --btn-text: #15120f;
+    --ghost: rgba(242, 235, 227, 0.08);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(circle at 50% 35%, var(--bg-glow), var(--bg) 70%);
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .label {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+    transition: color 0.4s ease;
+  }
+  .label.running { color: var(--accent); }
+
+  .ring-wrap {
+    position: relative;
+    width: min(320px, 80vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .ring-wrap.done { animation: pulse 1.6s ease-in-out 3; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
+  svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+  .track { stroke: var(--track); }
+  .progress {
+    stroke: url(#grad);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.25s linear;
+  }
+
+  .center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .time {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-weight: 300;
+    font-size: clamp(48px, 15vw, 68px);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .sub { font-size: 13px; color: var(--muted); }
+
+  .controls { display: flex; gap: 12px; }
+  button {
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border: 0;
+    border-radius: 999px;
+    padding: 14px 28px;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.2s ease, background 0.2s ease;
+  }
+  button:active { transform: scale(0.96); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .primary { background: var(--btn); color: var(--btn-text); min-width: 132px; }
+  .ghost { background: var(--ghost); color: var(--text); }
+
+  .hint { font-size: 12px; color: var(--muted); margin: 0; }
+  kbd {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--ghost);
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    padding: 6px 12px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress, .label, button { transition: none; }
+    .ring-wrap.done { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <button class="ghost theme-toggle" id="theme" aria-label="Toggle light and dark mode">◐</button>
+
+  <main class="card">
+    <p class="label" id="label">Ready to focus</p>
+
+    <div class="ring-wrap" id="ringWrap">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="var(--accent-2)" />
+            <stop offset="100%" stop-color="var(--accent)" />
+          </linearGradient>
+        </defs>
+        <circle class="track" cx="100" cy="100" r="88" fill="none" stroke-width="8" />
+        <circle class="progress" id="progress" cx="100" cy="100" r="88" fill="none" stroke-width="8" />
+      </svg>
+      <div class="center">
+        <div class="time" id="time" role="timer" aria-live="off">25:00</div>
+        <div class="sub" id="sub">25 minute session</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="primary" id="toggle">Start</button>
+      <button class="ghost" id="reset">Reset</button>
+    </div>
+
+    <p class="hint"><kbd>Space</kbd> start / pause &nbsp;·&nbsp; <kbd>R</kbd> reset</p>
+  </main>
+
+<script>
+  const DURATION = 25 * 60 * 1000;
+  const R = 88;
+  const CIRC = 2 * Math.PI * R;
+
+  const $ = (id) => document.getElementById(id);
+  const timeEl = $("time"), subEl = $("sub"), labelEl = $("label");
+  const toggleBtn = $("toggle"), resetBtn = $("reset");
+  const progress = $("progress"), ringWrap = $("ringWrap");
+
+  progress.style.strokeDasharray = CIRC;
+  progress.style.strokeDashoffset = 0;
+
+  let remaining = DURATION;
+  let endAt = null;      // timestamp when the session will finish (while running)
+  let tick = null;
+
+  const fmt = (ms) => {
+    const s = Math.ceil(ms / 1000);
+    return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  };
+
+  function render() {
+    const t = fmt(remaining);
+    timeEl.textContent = t;
+    // Ring drains as time passes
+    progress.style.strokeDashoffset = CIRC * (1 - remaining / DURATION);
+    document.title = endAt ? `${t} · Focus` : "Focus Timer";
+  }
+
+  function setState(state) {
+    labelEl.classList.toggle("running", state === "running");
+    const copy = {
+      idle:    ["Ready to focus", "25 minute session", "Start"],
+      running: ["Focusing", "Stay with it", "Pause"],
+      paused:  ["Paused", "Pick up where you left off", "Resume"],
+      done:    ["Session complete", "Nice work. Take a break.", "Start again"],
+    }[state];
+    labelEl.textContent = copy[0];
+    subEl.textContent = copy[1];
+    toggleBtn.textContent = copy[2];
+  }
+
+  function loop() {
+    remaining = Math.max(0, endAt - Date.now());
+    render();
+    if (remaining === 0) finish();
+  }
+
+  function start() {
+    if (remaining === 0) remaining = DURATION;
+    ringWrap.classList.remove("done");
+    endAt = Date.now() + remaining;
+    tick = setInterval(loop, 250);
+    setState("running");
+    loop();
+  }
+
+  function pause() {
+    clearInterval(tick);
+    remaining = Math.max(0, endAt - Date.now());
+    endAt = null;
+    setState("paused");
+    render();
+  }
+
+  function reset() {
+    clearInterval(tick);
+    endAt = null;
+    remaining = DURATION;
+    ringWrap.classList.remove("done");
+    setState("idle");
+    render();
+  }
+
+  function finish() {
+    clearInterval(tick);
+    endAt = null;
+    setState("done");
+    render();
+    ringWrap.classList.add("done");
+    chime();
+  }
+
+  function chime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [523.25, 659.25, 783.99].forEach((f, i) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = f;
+        const t0 = ctx.currentTime + i * 0.18;
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(0.18, t0 + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + 1.2);
+        o.connect(g).connect(ctx.destination);
+        o.start(t0);
+        o.stop(t0 + 1.25);
+      });
+    } catch (e) { /* audio unavailable — the visual cue still shows */ }
+  }
+
+  toggleBtn.addEventListener("click", () => (endAt ? pause() : start()));
+  resetBtn.addEventListener("click", reset);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.target.tagName === "BUTTON" && (e.code === "Space" || e.code === "Enter")) return;
+    if (e.code === "Space") { e.preventDefault(); endAt ? pause() : start(); }
+    if (e.key === "r" || e.key === "R") reset();
+  });
+
+  // Light / dark toggle, remembered per browser
+  const root = document.documentElement;
+  try {
+    const saved = localStorage.getItem("focus-theme");
+    if (saved) root.dataset.theme = saved;
+  } catch (e) {}
+  $("theme").addEventListener("click", () => {
+    const isDark = root.dataset.theme
+      ? root.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = isDark ? "light" : "dark";
+    try { localStorage.setItem("focus-theme", root.dataset.theme); } catch (e) {}
+  });
+
+  render();
+</script>
+</body>
+</html>
